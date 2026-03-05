@@ -159,7 +159,7 @@ export class FolderImageSource {
           data-index="${index}"
           title="${escapeHtml(image.name)}${dimensions ? ` (${dimensions})` : ''} - ${sizeKb} KB"
         >
-          <img src="${image.objectUrl}" alt="${escapeHtml(image.name)}" loading="lazy">
+          <img src="${image.objectUrl}" alt="${escapeHtml(image.name)}">
           ${dimensions ? `<div class="image-dimensions">${dimensions}</div>` : ''}
         </div>
       `

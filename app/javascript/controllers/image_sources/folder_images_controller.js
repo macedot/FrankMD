@@ -54,13 +54,13 @@ export default class extends Controller {
   async browse() {
     const result = await this.source.browse()
     if (!result.error && !result.cancelled) {
+      this.setupUI()
       this.source.renderGrid(
         this.gridTarget,
         this.hasStatusTarget ? this.statusTarget : null,
         "click->folder-images#select",
         result.count
       )
-      this.setupUI()
     }
   }
 
