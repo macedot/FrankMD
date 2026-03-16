@@ -17,7 +17,11 @@
 
     <%= stylesheet_link_tag "fonts" %>
 
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <% if Rails.application.assets.load_path.find("tailwind.css") %>
+      <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <% elsif Rails.application.assets.load_path.find("tailwind/application.css") %>
+      <%= stylesheet_link_tag "tailwind/application", "data-turbo-track": "reload" %>
+    <% end %>
     <%= javascript_importmap_tags %>
   </head>
 

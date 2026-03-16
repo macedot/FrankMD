@@ -253,36 +253,24 @@ class NoteTest < ActiveSupport::TestCase
   end
 
   test "note.save handles permission denied on create" do
-    # Skip on Windows where chmod doesn't work the same way
-    skip "chmod test not applicable on this platform" unless File.respond_to?(:chmod)
-
-    # Create a directory with no write permission
-    readonly_dir = @test_notes_dir.join("readonly")
-    FileUtils.mkdir_p(readonly_dir)
-    File.chmod(0o555, readonly_dir)
-
     note = Note.new(path: "readonly/cannot_write.md", content: "content")
-    result = note.save
+    service = stub
+    service.stubs(:write).raises(Errno::EACCES)
+    note.stubs(:service).returns(service)
 
-    # Restore permissions for cleanup
-    File.chmod(0o755, readonly_dir)
+    result = note.save
 
     refute result
     assert note.errors[:base].any?
   end
 
   test "note.destroy handles permission denied" do
-    skip "chmod test not applicable on this platform" unless File.respond_to?(:chmod)
-
-    # Create a file and make parent directory read-only
-    create_test_note("protected.md", "content")
-    File.chmod(0o555, @test_notes_dir)
-
     note = Note.new(path: "protected.md")
-    result = note.destroy
+    service = stub
+    service.stubs(:delete).raises(Errno::EACCES)
+    note.stubs(:service).returns(service)
 
-    # Restore permissions for cleanup
-    File.chmod(0o755, @test_notes_dir)
+    result = note.destroy
 
     refute result
     assert note.errors[:base].any?

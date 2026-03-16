@@ -305,16 +305,13 @@ class FolderTest < ActiveSupport::TestCase
   end
 
   test "folder.create handles permission denied" do
-    skip "chmod test not applicable on this platform" unless File.respond_to?(:chmod)
-
-    # Make the base directory read-only
-    File.chmod(0o555, @test_notes_dir)
-
     folder = Folder.new(path: "cannot_create")
-    result = folder.create
+    service = stub
+    service.stubs(:directory?).returns(false)
+    service.stubs(:create_folder).raises(Errno::EACCES)
+    folder.stubs(:service).returns(service)
 
-    # Restore permissions for cleanup
-    File.chmod(0o755, @test_notes_dir)
+    result = folder.create
 
     refute result
     assert folder.errors[:base].any?
@@ -322,16 +319,12 @@ class FolderTest < ActiveSupport::TestCase
   end
 
   test "folder.destroy handles permission denied" do
-    skip "chmod test not applicable on this platform" unless File.respond_to?(:chmod)
-
-    create_test_folder("protected_folder")
-    File.chmod(0o555, @test_notes_dir)
-
     folder = Folder.new(path: "protected_folder")
-    result = folder.destroy
+    service = stub
+    service.stubs(:delete_folder).raises(Errno::EACCES)
+    folder.stubs(:service).returns(service)
 
-    # Restore permissions for cleanup
-    File.chmod(0o755, @test_notes_dir)
+    result = folder.destroy
 
     refute result
     assert folder.errors[:base].any?

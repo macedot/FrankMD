@@ -28,8 +28,12 @@ I18n.locale = :en
 
 module ActiveSupport
   class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    parallel_workers = ENV["PARALLEL_WORKERS"]
+    if parallel_workers.nil?
+      parallelize(workers: :number_of_processors)
+    elsif parallel_workers.to_i > 1
+      parallelize(workers: parallel_workers.to_i)
+    end
 
     # Create a temporary notes directory for each test
     def setup_test_notes_dir

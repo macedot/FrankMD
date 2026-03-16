@@ -5,7 +5,7 @@ require "json"
 
 class ImagesController < ApplicationController
   skip_forgery_protection only: [ :upload, :upload_to_s3, :upload_external_to_s3, :upload_base64 ]
-  before_action :require_images_enabled, except: [ :status, :upload, :upload_base64, :search_google, :search_pinterest ]
+  before_action :require_images_enabled, except: [ :status, :upload, :upload_base64, :search_web, :search_google, :search_pinterest ]
 
   # GET /images/config
   def status
