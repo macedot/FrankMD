@@ -141,6 +141,36 @@
     font-weight: normal;
   }
 
+  /* Code block copy button */
+  .prose pre .code-copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.35rem;
+    border: none;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: var(--theme-text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background-color 0.15s;
+    line-height: 0;
+  }
+
+  .prose pre:hover .code-copy-btn {
+    opacity: 1;
+  }
+
+  .prose pre .code-copy-btn:hover {
+    background: var(--theme-bg-tertiary);
+    color: var(--theme-text-primary);
+  }
+
+  .prose pre .code-copy-btn.copied {
+    opacity: 1;
+    color: #22c55e;
+  }
+
   /* Blockquotes */
   .prose blockquote {
     border-left: 4px solid var(--theme-accent);
