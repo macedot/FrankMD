@@ -19,11 +19,21 @@ export default class extends Controller {
   connect() {
     this.draggedItem = null
     this.activeDropTargetId = null
+
+    // Listen for external file drops on the tree container
+    if (this.hasTreeTarget) {
+      this.boundExternalDrop = this.onExternalFileDrop.bind(this)
+      this.treeTarget.addEventListener("drop", this.boundExternalDrop)
+    }
   }
 
   disconnect() {
     this.draggedItem = null
     this.activeDropTargetId = null
+
+    if (this.boundExternalDrop) {
+      this.treeTarget?.removeEventListener("drop", this.boundExternalDrop)
+    }
   }
 
   // Item drag start
@@ -58,6 +68,14 @@ export default class extends Controller {
   // Allow drop
   onDragOver(event) {
     event.preventDefault()
+
+    // Check if this is an external file drop (no dataTransfer.types includes "text/plain")
+    // External drops from OS file explorer don't have "text/plain" type
+    if (!event.dataTransfer?.types?.includes("text/plain")) {
+      event.dataTransfer.dropEffect = "copy"
+      return
+    }
+
     event.dataTransfer.dropEffect = "move"
   }
 
@@ -210,6 +228,51 @@ export default class extends Controller {
     const newPath = itemName
 
     await this.moveItem(sourcePath, newPath, this.draggedItem.type)
+  }
+
+  // Handle external file drops (from OS file explorer)
+  async onExternalFileDrop(event) {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const files = event.dataTransfer?.files
+    if (!files || files.length === 0) return
+
+    // Filter for .md files only
+    const mdFiles = Array.from(files).filter(f => f.name.endsWith(".md"))
+    if (mdFiles.length === 0) {
+      alert(window.t("errors.invalid_file_type"))
+      return
+    }
+
+    // Determine target folder from drop location
+    const target = event.target.closest("[data-drop-id]")
+    const folder = target?.dataset?.path || ""
+
+    try {
+      const formData = new FormData()
+      mdFiles.forEach(file => formData.append("files[]", file))
+      if (folder) formData.append("folder", folder)
+
+      const response = await fetch("/import", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
+        }
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || window.t("errors.import_failed"))
+      }
+
+      // Dispatch event to reload tree
+      this.dispatch("files-imported", { detail: { count: mdFiles.length } })
+    } catch (error) {
+      console.error("Import failed:", error)
+      alert(error.message || window.t("errors.import_failed"))
+    }
   }
 
   // Move item to new location
