@@ -91,6 +91,9 @@ export default class extends Controller {
     // Fallback timeout ensures it runs even if outlet callback doesn't fire.
     this._initialFileHandled = false
     this._initialFileTimeout = setTimeout(() => this._completeInitialLoad(), 50)
+
+    // Listen for files-imported event from drag_drop or file_operations
+    document.addEventListener("files-imported", this.onFilesImported.bind(this))
   }
 
   // Called by Stimulus when the codemirror outlet controller connects
@@ -1079,6 +1082,16 @@ export default class extends Controller {
     const { path, lineNumber } = event.detail
     await this.openFileAndRevealInTree(path)
     this.jumpToLine(lineNumber)
+  }
+
+  async onFilesImported(event) {
+    const { count } = event.detail
+
+    // Reload the file tree
+    await this.loadTree()
+
+    // Show toast notification
+    this.showToast(window.t("success.files_imported", { count }))
   }
 
   jumpToLine(lineNumber) {
