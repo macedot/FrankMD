@@ -472,14 +472,15 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "import handles filename conflicts" do
-    create_test_note("existing.md")
+    create_test_note("test.md")
     file = fixture_file_upload("test.md", "text/markdown")
 
     post import_url, params: { files: [file] }
     assert_response :success
 
-    # Should create test-1.md instead of overwriting existing.md
+    # Should create test-1.md instead of overwriting test.md
     assert File.exist?(File.join(@notes_dir, "test-1.md"))
+    refute File.exist?(File.join(@notes_dir, "test.md")) # original should be unchanged
   end
 
   test "import rejects non-markdown files" do
