@@ -424,9 +424,27 @@ export default class extends Controller {
     }
   }
 
+  showNewItemMenu(event) {
+    event.stopPropagation()
+    if (this.hasNewItemMenuTarget) {
+      this.newItemMenuTarget.classList.remove("hidden")
+      // Close menu when clicking outside
+      document.addEventListener("click", this._hideNewItemMenuHandler = () => {
+        this.hideNewItemMenu()
+        document.removeEventListener("click", this._hideNewItemMenuHandler)
+      })
+    }
+  }
+
+  hideNewItemMenu() {
+    if (this.hasNewItemMenuTarget) {
+      this.newItemMenuTarget.classList.add("hidden")
+    }
+  }
+
   // Import Files
   importFiles() {
-    if (!this.hasFileInputTarget) {
+    if (!this._fileInputCreated) {
       // Create hidden file input if it doesn't exist
       const input = document.createElement("input")
       input.type = "file"
@@ -435,6 +453,7 @@ export default class extends Controller {
       input.classList.add("hidden")
       input.dataset.fileOperationsTarget = "fileInput"
       this.element.appendChild(input)
+      this._fileInputCreated = true
     }
     this.fileInputTarget.click()
   }
