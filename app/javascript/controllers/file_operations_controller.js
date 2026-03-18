@@ -14,7 +14,8 @@ export default class extends Controller {
     "noteTypeDialog",
     "newItemDialog",
     "newItemTitle",
-    "newItemInput"
+    "newItemInput",
+    "fileInput"
   ]
 
   connect() {
@@ -421,5 +422,64 @@ export default class extends Controller {
     } else if (event.key === "Escape") {
       this.closeNewItemDialog()
     }
+  }
+
+  // Import Files
+  importFiles() {
+    if (!this.hasFileInputTarget) {
+      // Create hidden file input if it doesn't exist
+      const input = document.createElement("input")
+      input.type = "file"
+      input.multiple = true
+      input.accept = ".md"
+      input.classList.add("hidden")
+      input.dataset.fileOperationsTarget = "fileInput"
+      this.element.appendChild(input)
+    }
+    this.fileInputTarget.click()
+  }
+
+  async onFileSelected(event) {
+    const files = event.target.files
+    if (!files || files.length === 0) return
+
+    // Filter for .md files only
+    const mdFiles = Array.from(files).filter(f => f.name.endsWith(".md"))
+    if (mdFiles.length === 0) {
+      alert(window.t("errors.invalid_file_type"))
+      return
+    }
+
+    // Get target folder from expanded folders (use first expanded or root)
+    const expanded = this.expandedFolders
+    const folder = expanded ? expanded.split(",")[0] : ""
+
+    try {
+      const formData = new FormData()
+      mdFiles.forEach(file => formData.append("files[]", file))
+      if (folder) formData.append("folder", folder)
+
+      const response = await fetch("/import", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
+        }
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || window.t("errors.import_failed"))
+      }
+
+      // Reload the tree
+      this.dispatch("files-imported", { detail: { count: mdFiles.length } })
+    } catch (error) {
+      console.error("Import failed:", error)
+      alert(error.message || window.t("errors.import_failed"))
+    }
+
+    // Reset input
+    event.target.value = ""
   }
 }
