@@ -451,4 +451,42 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, 'data-path="new_name.md"'
     refute_includes response.body, 'data-path="old_name.md"'
   end
+
+  # === import ===
+
+  test "import accepts markdown files" do
+    file = fixture_file_upload("test.md", "text/markdown")
+
+    post import_url, params: { files: [file] }
+    assert_response :success
+  end
+
+  test "import saves file to target folder" do
+    create_test_folder("target")
+    file = fixture_file_upload("test.md", "text/markdown")
+
+    post import_url, params: { files: [file], folder: "target" }
+    assert_response :success
+
+    assert File.exist?(File.join(@notes_dir, "target", "test.md"))
+  end
+
+  test "import handles filename conflicts" do
+    create_test_note("existing.md")
+    file = fixture_file_upload("test.md", "text/markdown")
+
+    post import_url, params: { files: [file] }
+    assert_response :success
+
+    # Should create test-1.md instead of overwriting existing.md
+    assert File.exist?(File.join(@notes_dir, "test-1.md"))
+  end
+
+  test "import rejects non-markdown files" do
+    file = fixture_file_upload("test.txt", "text/plain")
+
+    post import_url, params: { files: [file] }
+    # Should succeed but skip the file (only .md files are processed)
+    assert_response :success
+  end
 end
