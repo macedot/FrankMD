@@ -132,6 +132,65 @@ class NotesController < ApplicationController
     end
   end
 
+  def import
+    files = params[:files]
+    target_folder = params[:folder].presence || ""
+
+    if files.blank?
+      render json: { error: t("errors.no_files_provided") }, status: :unprocessable_entity
+      return
+    end
+
+    imported = []
+    errors = []
+
+    files.each do |uploaded_file|
+      next unless uploaded_file.original_filename.end_with?(".md")
+
+      base_name = File.basename(uploaded_file.original_filename, ".md")
+      target_path = target_folder.present? ? "#{target_folder}/#{base_name}.md" : "#{base_name}.md"
+
+      # Handle conflicts with suffix
+      final_path = resolve_conflict_path(target_path)
+
+      note = Note.new(path: final_path, content: uploaded_file.read)
+      if note.save
+        imported << final_path
+      else
+        errors << { file: uploaded_file.original_filename, error: note.errors.full_messages.join(", ") }
+      end
+    end
+
+    if errors.any?
+      render json: { error: t("errors.import_failed"), details: errors }, status: :unprocessable_entity
+      return
+    end
+
+    respond_to do |format|
+      format.turbo_stream {
+        load_tree_for_turbo_stream
+        render status: :created
+      }
+      format.any { render json: { imported: imported, count: imported.size, message: t("success.files_imported", count: imported.size) }, status: :created }
+    end
+  end
+
+  def resolve_conflict_path(path)
+    note = Note.new(path: path)
+    return path unless note.exists?
+
+    base_name = File.basename(path, ".md")
+    dir = File.dirname(path)
+    counter = 1
+
+    loop do
+      new_path = dir == "." ? "#{base_name}-#{counter}.md" : "#{dir}/#{base_name}-#{counter}.md"
+      note = Note.new(path: new_path)
+      return new_path unless note.exists?
+      counter += 1
+    end
+  end
+
   private
 
   def json_request?
