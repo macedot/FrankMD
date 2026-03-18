@@ -490,4 +490,9 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     # Should succeed but skip the file (only .md files are processed)
     assert_response :success
   end
+
+  test "import returns error when no files provided" do
+    post import_url, params: { files: nil }
+    assert_response :unprocessable_entity
+  end
 end
