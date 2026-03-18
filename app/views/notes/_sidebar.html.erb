@@ -3,26 +3,55 @@
   <div class="flex-none h-10 border-b border-[var(--theme-border)] flex items-center justify-between px-3">
     <span class="text-xs font-medium text-[var(--theme-text-muted)] uppercase tracking-wide"><%= t('sidebar.explorer') %></span>
     <div class="flex items-center gap-1">
-      <button
-        type="button"
-        data-action="click->app#newNote"
-        class="p-1 rounded hover:bg-[var(--theme-bg-hover)] text-[var(--theme-text-muted)]"
-        title="<%= t('sidebar.new_note') %>"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      </button>
-      <button
-        type="button"
-        data-action="click->app#newFolder"
-        class="p-1 rounded hover:bg-[var(--theme-bg-hover)] text-[var(--theme-text-muted)]"
-        title="<%= t('sidebar.new_folder') %>"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-        </svg>
-      </button>
+<div class="relative inline-block text-left">
+  <button
+    type="button"
+    data-action="click->file-operations#showNewItemMenu"
+    class="p-1 rounded hover:bg-[var(--theme-bg-hover)] text-[var(--theme-text-muted)]"
+    title="New"
+  >
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+  </button>
+  <!-- Dropdown menu -->
+  <div 
+    class="hidden absolute left-0 top-full mt-1 w-48 bg-[var(--theme-bg-secondary)] border border-[var(--theme-border)] rounded shadow-lg z-50"
+    data-file-operations-target="newItemMenu"
+  >
+    <button
+      type="button"
+      data-action="click->file-operations#newNote"
+      class="w-full px-3 py-2 text-left text-sm hover:bg-[var(--theme-bg-hover)] flex items-center gap-2"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <%= t('sidebar.new_note') %>
+    </button>
+    <button
+      type="button"
+      data-action="click->file-operations#newFolder"
+      class="w-full px-3 py-2 text-left text-sm hover:bg-[var(--theme-bg-hover)] flex items-center gap-2"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      </svg>
+      <%= t('sidebar.new_folder') %>
+    </button>
+    <div class="border-t border-[var(--theme-border)]"></div>
+    <button
+      type="button"
+      data-action="click->file-operations#importFiles"
+      class="w-full px-3 py-2 text-left text-sm hover:bg-[var(--theme-bg-hover)] flex items-center gap-2"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
+      <%= t('sidebar.import_files') %>
+    </button>
+  </div>
+</div>
       <div class="w-px h-4 bg-[var(--theme-border)] mx-0.5"></div>
       <button
         type="button"
