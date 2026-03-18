@@ -11,6 +11,8 @@ Rails.application.routes.draw do
   patch "notes/*path", to: "notes#update", as: :update_note, format: false
   delete "notes/*path", to: "notes#destroy", as: :destroy_note, format: false
 
+  post "import", to: "notes#import"
+
   # Folders API
   post "folders/*path/rename", to: "folders#rename", as: :rename_folder
   post "folders/*path", to: "folders#create", as: :create_folder
