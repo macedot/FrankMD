@@ -64,6 +64,17 @@ class NotesService
     true
   end
 
+  def import_file(source_content, target_path)
+    full_path = safe_path(target_path, must_exist: false)
+    FileUtils.mkdir_p(full_path.dirname)
+    full_path.write(source_content)
+    true
+  rescue Errno::EACCES, Errno::EPERM
+    raise InvalidPathError, "Permission denied: #{target_path}"
+  rescue Errno::ENOENT
+    raise InvalidPathError, "Parent folder not found: #{target_path}"
+  end
+
   def exists?(path)
     full_path = safe_path(path, must_exist: false)
     full_path.exist?
