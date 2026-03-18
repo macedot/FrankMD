@@ -47,6 +47,7 @@ en:
     search_in_files: "Search in Files (Ctrl+Shift+F)"
     no_notes_yet: "No notes yet"
     no_files_found: "No files found"
+    import_files: "Import Files..."
     # Document stats
     words: "Words"
     characters: "Characters"
@@ -485,6 +486,9 @@ en:
     folder_no_longer_exists: "This folder no longer exists. It may have been moved or deleted."
     parent_folder_not_found: "Parent folder not found. It may have been moved or deleted."
     failed_to_process_ai: "Failed to process text with AI"
+    no_files_provided: "No files provided"
+    import_failed: "Failed to import some files"
+    invalid_file_type: "Only .md files can be imported"
 
   # Confirm messages
   confirm:
@@ -501,3 +505,4 @@ en:
     folder_deleted: "Folder deleted"
     folder_renamed: "Folder renamed"
     settings_saved: "Settings saved"
+    files_imported: "%{count} file(s) imported"
